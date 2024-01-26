@@ -1,0 +1,5 @@
+add:
+- speech to text, detect what language it is in
+- translate text into desired language and add audio playback option, text to speech
+- continue conversation button to hold settings but allow new inputs
+        and/or flip button to let person B respond in their language and person A hears translation

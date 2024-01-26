@@ -1,4 +1,5 @@
-import OpenAI from "openai"
+import {initializeApiInstances} from './config.js'
+const {openai} = await initializeApiInstances()
 
 const translateBtn = document.getElementById("translate-btn")
 
@@ -22,9 +23,6 @@ async function translate(textToTranslate, selectedLanguage){
         }
     ]
     try {
-        const openai = new OpenAI ({
-            dangerouslyAllowBrowser: true
-        })
         const response = await openai.chat.completions.create({
             model: 'gpt-4',
             messages: messages,

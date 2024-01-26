@@ -44,8 +44,7 @@ body {
     height: 505px;
 }
 
-#text-to-translate,
-#original-text, #select-language-header {
+.header {
     font-weight: 700;
     font-size: 20px;
     color: #035A9D;

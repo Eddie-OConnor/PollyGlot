@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+    <html>
+    <head><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+        
+        <link rel="stylesheet" href="index.css">
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    
+    <body>
+    <div id="header">
+        <img id="parrot" src="./assets/parrot.png">
+        <div id="header-container">
+            <h1>PollyGlot</h1>
+            <h2>Perfect Translation Every Time</h2>
+        </div>
+    </div>
+
+    <div id="main">
+        <div id="input-div" class="center">
+            <h3 id="text-to-translate">Text to Translate 👇</h3>
+            <h3 id="original-text" class="hidden">Original Text 👇</h3>
+            <div id="text-input-container">
+                <textarea id="text-input" type="text" placeholder="How are you?" maxlength="100"></textarea>
+                <span id="char-count">0/100</span>
+            </div>
+        </div>
+        
+        <div id="translation-div" class="hidden center">
+            <h3 id="text-to-translate" class="center">Your Translation 👇</h3>
+            <!-- translated text appears here -->
+            <p id="translation"></p>
+        </div>
+
+        <div id="select-language">
+            <h3 id="select-language-header" class="center">Select Language 👇</h3>
+            <div>
+                <input type="radio" id="french" name="language" value="French">
+                <label for="french">French</label> <img class="icon" src="./assets/fr-flag.png">
+            </div>
+
+            <div>
+                <input type="radio" id="spanish" name="language" value="Spanish">
+                <label for="spanish">Spanish</label> <img class="icon" src="./assets/sp-flag.png">
+            </div>
+
+            <div>
+                <input type="radio" id="japanese" name="language" value="Japanese">
+                <label for="japanese">Japanese</label> <img class="icon" src="./assets/jpn-flag.png">
+            </div>
+        </div>
+
+        <div>
+            <button id="translate-btn" type="button" disabled>Translate</button>
+        </div>
+
+        <div id="start-over-btn-container" class="hidden">
+            <button id="start-over-btn" type="button">Start Over</button>
+        </div>
+    </div>
+    
+    <script src="index.js" type="module"></script>
+    </body>
+</html>

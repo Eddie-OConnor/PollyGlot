@@ -21,23 +21,17 @@
 
     <div id="main">
         <div id="input-div" class="center">
-            <h3 class="header center">Text to Translate 👇</h3>
+            <h3 class="header">Text to Translate 👇</h3>
             <h3 id="original-text" class="hidden">Original Text 👇</h3>
             <div id="text-input-container">
                 <textarea id="text-input" type="text" placeholder="How are you?" maxlength="100"></textarea>
                 <span id="char-count">0/100</span>
             </div>
         </div>
-        
-        <div id="translation-div" class="hidden center">
-            <h3 class="header center">Your Translation 👇</h3>
-            <!-- translated text appears here -->
-            <p id="translation"></p>
-        </div>
 
         <div id="select-language">
             <div>
-                <label for="language" class="header">Select a language 👉 </label>
+                <label for="language" class="header">Select Desired Translation 👉 </label>
                 <select id="language" name="language">
                     <option value="English">English</option>
                     <option value="Arabic">Arabic</option>
@@ -57,8 +51,13 @@
             </div>
         </div>
 
+        <div id="translation-div" class="center">
+            <!-- translated text appears here -->
+            <p id="translation"></p>
+        </div>
+
         <div>
-            <button id="translate-btn" type="button" disabled>Translate</button>
+            <button id="translate-btn" type="button">Translate</button>
         </div>
 
         <div id="start-over-btn-container" class="hidden">

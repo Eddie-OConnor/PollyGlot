@@ -4,12 +4,15 @@ import OpenAI from 'openai';
 
 async function fetchKeys(){
     try {
-        const response = await fetch('http://localhost:4000/keys')
+        const response = await fetch('TBD')
         if(response.ok){
             const data = await response.json()
-            return data
+            const {openaiApiKey} = data
+            return {
+                openaiApiKey: openaiApiKey,
+            }
         } else {
-            console.error('error fetching api key', response.statusText)
+            console.error('error fetching keys', response.statusText)
         }
     } catch (e){
         console.error('error fetching keys', e)

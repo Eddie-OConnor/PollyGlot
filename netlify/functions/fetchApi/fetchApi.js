@@ -15,7 +15,7 @@ const handler = async (event) => {
     } catch (error) {
         return { statusCode: 500, body: error.toString() }
     }
-    }
+}
       
     
-    module.exports = { handler }
+module.exports = { handler }

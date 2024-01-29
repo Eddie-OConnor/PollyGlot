@@ -4,7 +4,7 @@ body {
     margin: auto;
 }
 
-#header {
+#banner {
     display: flex;
     background-image: url('./assets/worldmap.png');
     background-size: cover;
@@ -15,7 +15,7 @@ body {
     flex-wrap: wrap;
 }
 
-#header h1 {
+#banner h1 {
     font-family: 'Big Shoulders Display', sans-serif;
     font-weight: 800;
     font-size: 43px;
@@ -23,20 +23,20 @@ body {
     margin: 0;
 }
 
-#header h2 {
+#banner h2 {
     font-weight: 600;
     font-size: 12px;
     color: #ffffff;
     margin: 3px 0;
 }
 
-#parrot {
+#banner img {
     height: 85px;
     width: 95px;
     margin-right: 15px;
 }
 
-#main {
+main {
     margin: 30px auto;
     border: 4px solid #252F42;
     border-radius: 15px;
@@ -48,9 +48,11 @@ body {
     font-weight: 700;
     font-size: 20px;
     color: #035A9D;
+    margin-left: 40px;
+    margin-top: 0;
 }
 
-#text-input, #translation {
+#translation-input, #translation {
     height: 118px;
     width: 90%;
     font-weight: 600;
@@ -67,33 +69,7 @@ body {
     box-sizing: border-box;
 }
 
-#select-language {
-    font-size: 20px;
-}
-
-#select-language div {
-    padding: 5px;
-    line-height: 30px;
-    margin-left: 40px;
-}
-
-#select-language div label {
-    padding: 5px;
-}
-
-#select-language div textarea {
-    height: 16px;
-    width: 16px;
-    border: solid #BCBCBC 1px;
-}
-
-#select-language div label,
-#select-language div textarea,
-#select-language div img {
-    vertical-align: middle;
-}
-
-#translate-btn, #start-over-btn {
+button {
     display: block;
     width: 90%;
     height: 50px;
@@ -102,11 +78,15 @@ body {
     color: white;
     font-size: 24px;
     font-weight: 700;
-    border: none;
     border-radius: 6px;
 }
 
-#translate-btn:disabled {
+button:hover {
+    cursor: pointer;
+}
+
+button:disabled {
+    cursor: not-allowed;
     background-color: gray;
 }
 

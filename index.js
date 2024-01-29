@@ -1,24 +1,37 @@
+//index.js
+
 import {initializeApiInstances} from './config.js'
 const {openai} = await initializeApiInstances()
 
-const translateBtn = document.getElementById("translate-btn")
+const selectLanguage = document.getElementById('language')
+const translateBtn = document.getElementById('translate-btn')
+const startOverBtn = document.getElementById("start-over-btn")
+const textToTranslateInput = document.getElementById('translation-input')
 
-translateBtn.addEventListener('click', () => {
-    const textToTranslate = document.getElementById('text-input').value
-    const selectedLanguage = document.querySelector('input[name="language"]:checked').value;
-    translate(textToTranslate, selectedLanguage)
-    document.getElementById('text-input').disabled = true
+translateBtn.addEventListener('click', async function(e) {
+    e.preventDefault()
+    const textToTranslate = textToTranslateInput.value
+    const selectedLanguage = selectLanguage.value
+    textToTranslateInput.disabled = true
+    main(textToTranslate, selectedLanguage)
 })
 
-async function translate(textToTranslate, selectedLanguage){
+async function main(text, language){
+    const translation = await translate(text, language)
+    const spokenTranslation = await speakTranslation(translation)
+    console.log(spokenTranslation)
+    renderTranslation(translation)
+}
+
+async function translate(text, language){
     const messages = [
         {
             role: 'system',
-            content: `You translate ${textToTranslate} from English into ${selectedLanguage}.`
+            content: `You translate ${text} from it's language into ${language}.`
         },
         {
             role: 'user',
-            content: `${textToTranslate}
+            content: `${text}
             `
         }
     ]
@@ -30,61 +43,57 @@ async function translate(textToTranslate, selectedLanguage){
             max_tokens: 200
         })
         const translationResponse = response.choices[0].message.content
-        console.log(translationResponse)
-        console.log(response)
-        renderTranslation(translationResponse)
-    } catch (err) {
-        console.log('Error:', err)
-        console.log('Unable to access OpenAI, please refresh and try again')
+        return translationResponse
+    } catch (e) {
+        console.error('Unable to access OpenAI, please refresh and try again', e)
+    }
+} 
+
+async function speakTranslation(text){
+    try {
+        const response = await openai.audio.speech.create({
+            model: 'tts-1-hd',
+            voice: 'echo',
+            input: `${text}`
+        })
+        return response
+    } catch (e) {
+        console.error('error converting translated text into speech', e)
     }
 }
 
-const textToTranslateHeader = document.getElementById("text-to-translate")
-const originalTextHeader = document.getElementById("original-text")
-const translatedText = document.getElementById("translation-div")
-const selectLanguageDiv = document.getElementById("select-language")
-const startOverBtn = document.getElementById("start-over-btn")
-const startOverBtnContainer = document.getElementById('start-over-btn-container') 
+/* UX Functions */
 
 function renderTranslation(output){
-        const translation = document.getElementById('translation')
-        translation.innerHTML = output
-        translatedText.classList.toggle('hidden')
+        const textToTranslateHeader = document.getElementById("text-to-translate")
+        const originalTextHeader = document.getElementById("original-text")
+        const translationFinal = document.getElementById('translation')
+        translationFinal.innerHTML = output
         textToTranslateHeader.style.display = 'none'
         originalTextHeader.classList.toggle('hidden')
         translateBtn.style.display = 'none'
-        selectLanguageDiv.style.display = 'none'
-        startOverBtnContainer.classList.toggle('hidden')
+        startOverBtn.classList.toggle('hidden')
 }
 
-const textToTranslate = document.getElementById('text-input')
-const charCount = document.getElementById('char-count')
+function updateCharCount(){
+    const charCount = document.getElementById('char-count')
+    textToTranslateInput.addEventListener('input', function(){
+        const currentLength = textToTranslateInput.value.length
+        charCount.textContent = `${currentLength}/100`
+    })
+}
 
-textToTranslate.addEventListener('input', () => {
-    const currentLength = textToTranslate.value.length
-    const maxLength = parseInt(textToTranslate.getAttribute('maxlength'))
-    
-    if (currentLength > maxLength) {
-        textToTranslate.value = textToTranslate.value.substring(0, maxLength)
-    }
-    charCount.textContent = `${currentLength}/${maxLength}`
-})
-
-const languageInputs = document.querySelectorAll('input[name="language"]')
+updateCharCount();
 
 function enableTranslateBtn() {
-    const isTextEntered = textToTranslate.value.trim().length > 0
-    const isLanguageSelected = Array.from(languageInputs).some(input => input.checked)
-
-    if (isTextEntered && isLanguageSelected) {
-        translateBtn.disabled = false;
-    } else {
-        translateBtn.disabled = true;
-    }
+    const isTextEntered = textToTranslateInput.value.trim().length > 0
+    const isLanguageSelected = selectLanguage.value !== 'default'
+    translateBtn.disabled = !(isTextEntered && isLanguageSelected)
 }
 
-textToTranslate.addEventListener('input', enableTranslateBtn)
-languageInputs.forEach(input => input.addEventListener ('change', enableTranslateBtn))
+selectLanguage.addEventListener('input', () => enableTranslateBtn());
+textToTranslateInput.addEventListener('input', () => enableTranslateBtn());
+
 
 startOverBtn.addEventListener('click', () => {
     location.reload()

@@ -4,7 +4,7 @@ import OpenAI from 'openai';
 
 async function fetchKeys(){
     try {
-        const response = await fetch('https://polly-glot.netlify.app/.netlify/functions/fetchApi')
+        const response = await fetch('/.netlify/functions/fetchApi')
         if(response.ok){
             const data = await response.json()
             const {openaiApiKey} = data

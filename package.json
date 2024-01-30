@@ -5,7 +5,9 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.1",
     "express": "^4.18.2",
-    "openai": "4.19.1"
+    "lamejs": "^1.2.1",
+    "openai": "4.19.1",
+    "recorder-js": "^1.0.7"
   },
   "devDependencies": {
     "vite": "latest"

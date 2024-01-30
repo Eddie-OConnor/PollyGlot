@@ -1,12 +1,19 @@
 //index.js
-
 import {initializeApiInstances} from './config.js'
 const {openai} = await initializeApiInstances()
 
+const textToTranslateInput = document.getElementById('translation-input')
+const recordButton = document.getElementById('record-button')
 const selectLanguage = document.getElementById('language')
 const translateBtn = document.getElementById('translate-btn')
 const startOverBtn = document.getElementById("start-over-btn")
-const textToTranslateInput = document.getElementById('translation-input')
+
+async function main(text, language){
+    const translation = await translate(text, language)
+    await speakTranslation(translation)
+    await renderTranslation(translation)
+}
+
 
 translateBtn.addEventListener('click', async function(e) {
     e.preventDefault()
@@ -16,12 +23,6 @@ translateBtn.addEventListener('click', async function(e) {
     main(textToTranslate, selectedLanguage)
 })
 
-async function main(text, language){
-    const translation = await translate(text, language)
-    const spokenTranslation = await speakTranslation(translation)
-    console.log(spokenTranslation)
-    renderTranslation(translation)
-}
 
 async function translate(text, language){
     const messages = [
@@ -49,31 +50,89 @@ async function translate(text, language){
     }
 } 
 
+
 async function speakTranslation(text){
+    const playTranslationBtn = document.getElementById('play-translation-btn')
     try {
         const response = await openai.audio.speech.create({
             model: 'tts-1-hd',
             voice: 'echo',
-            input: `${text}`
+            input: text
+            // update these back ticks?
         })
-        return response
+        const arrayBuffer = await response.arrayBuffer()
+        const blob = new Blob ([arrayBuffer], {type: 'audio/mp3'})
+        playTranslationBtn.src = URL.createObjectURL(blob)
+        playTranslationBtn.load()
     } catch (e) {
         console.error('error converting translated text into speech', e)
     }
 }
 
+recordButton.addEventListener('click', async function(){
+    const recording = await recordMessage()
+    const transcript = await speechToText(recording)
+    textToTranslateInput.innerText = transcript
+})
+
+async function recordMessage() {
+    let audioChunks = [];
+
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mediaRecorder = new MediaRecorder(stream);
+
+        mediaRecorder.ondataavailable = function (event) {
+            if (event.data.size > 0) {
+                audioChunks.push(event.data);
+            }
+        };
+        mediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' })
+            const filename = 'audio.wav'
+            const file = new File([audioBlob], filename, {type: 'audio/wav'})
+            console.log(file)
+            return file
+        };
+        mediaRecorder.start();
+        setTimeout(function () {
+            mediaRecorder.stop();
+            // stream.getTracks().forEach(track => track.stop());
+        }, 2000);
+        return await new Promise((resolve, reject) => {
+            mediaRecorder.onstop = resolve;
+        })
+    } catch (e) {
+        console.error('Error accessing microphone or recording', e);
+    }
+}
+
+
+async function speechToText(speech){
+    try {
+        const response = await openai.audio.transcriptions.create({
+            model: 'whisper-1',
+            file: speech,
+            response_format: 'text'
+        })
+        return response.text
+    } catch(e){
+        console.error('error transcribing the user recording', e)
+    }
+}
+
 /* UX Functions */
 
-function renderTranslation(output){
-        const textToTranslateHeader = document.getElementById("text-to-translate")
-        const originalTextHeader = document.getElementById("original-text")
+
+async function renderTranslation(output){
+        const textToTranslateHeader = document.getElementById("text-input-header")
         const translationFinal = document.getElementById('translation')
         translationFinal.innerHTML = output
-        textToTranslateHeader.style.display = 'none'
-        originalTextHeader.classList.toggle('hidden')
+        textToTranslateHeader.innerText = 'Original Text 👇'
         translateBtn.style.display = 'none'
         startOverBtn.classList.toggle('hidden')
 }
+
 
 function updateCharCount(){
     const charCount = document.getElementById('char-count')
@@ -84,6 +143,7 @@ function updateCharCount(){
 }
 
 updateCharCount();
+
 
 function enableTranslateBtn() {
     const isTextEntered = textToTranslateInput.value.trim().length > 0

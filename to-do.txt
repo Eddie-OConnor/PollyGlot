@@ -1,5 +1,4 @@
-add:
-- speech to text, detect what language it is in
-- translate text into desired language and add audio playback option, text to speech
+- sort out speech to text
+- FYI from openai --> "Please note that our usage policies require you to provide a clear disclosure to end users that the TTS voice they are hearing is AI-generated and not a human voice."
 - continue conversation button to hold settings but allow new inputs
         and/or flip button to let person B respond in their language and person A hears translation

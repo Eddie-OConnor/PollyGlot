@@ -2,6 +2,7 @@
     <html lang="en">
     <head>
         <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" href="path/to/your/favicon.ico" type="image/x-icon" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,8 +22,9 @@
 
     <main>
         <div>
-            <h3 id="text-to-translate" class="header">Text to Translate 👇</h3>
-            <h3 id="original-text" class="hidden">Original Text 👇</h3>
+            <h3 id="text-input-header" class="header">Text to Translate 👇</h3>
+            <button type="button" id="record-button">Listen for text to translate</button>
+            <audio id="recorded-audio" controls></audio>
             <div id="text-input-container" class="center">
                 <textarea id="translation-input" type="text" placeholder="How are you?" maxlength="100"></textarea>
                 <span id="char-count">0/100</span>
@@ -54,11 +56,12 @@
         <div class="center">
             <!-- translated text appears here -->
             <p id="translation"></p>
+            <audio id="play-translation-btn" controls></audio>
         </div>
 
         <div>
-            <button id="translate-btn" type="button" disabled>Translate</button>
-            <button id="start-over-btn" type="button" class="hidden">Start Over</button>
+            <button id="translate-btn" type="button" class="large-button" disabled>Translate</button>
+            <button id="start-over-btn" type="button" class="hidden large-button">Start Over</button>
         </div>
     </main>
     <script src="index.js" type="module"></script>

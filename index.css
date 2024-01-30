@@ -1,6 +1,6 @@
 body {
     font-family: 'Poppins', sans-serif;
-    max-width: 800px;
+    max-width: 450px;
     margin: auto;
 }
 
@@ -69,7 +69,7 @@ main {
     box-sizing: border-box;
 }
 
-button {
+.large-button {
     display: block;
     width: 90%;
     height: 50px;
@@ -81,11 +81,11 @@ button {
     border-radius: 6px;
 }
 
-button:hover {
+.large-button:hover {
     cursor: pointer;
 }
 
-button:disabled {
+.large-button:disabled {
     cursor: not-allowed;
     background-color: gray;
 }

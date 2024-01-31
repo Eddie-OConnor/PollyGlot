@@ -58,7 +58,6 @@ async function speakTranslation(text){
             model: 'tts-1-hd',
             voice: 'echo',
             input: text
-            // update these back ticks?
         })
         const arrayBuffer = await response.arrayBuffer()
         const blob = new Blob ([arrayBuffer], {type: 'audio/mp3'})
@@ -70,38 +69,37 @@ async function speakTranslation(text){
 }
 
 recordButton.addEventListener('click', async function(){
-    const recording = await recordMessage()
-    const transcript = await speechToText(recording)
-    textToTranslateInput.innerText = transcript
+    const transcription = await recordMessage()
+    // const transcription = await speechToText(recording)
+    textToTranslateInput.innerText = transcription
 })
 
 async function recordMessage() {
-    let audioChunks = [];
-
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const mediaRecorder = new MediaRecorder(stream);
+        const recorder = new MediaRecorder(stream);
+        let audioChunks = [];
 
-        mediaRecorder.ondataavailable = function (event) {
-            if (event.data.size > 0) {
-                audioChunks.push(event.data);
+        recorder.addEventListener('dataavailable', event => {
+            audioChunks.push(event.data);
+        });
+
+        setTimeout(() => {
+            recorder.stop()
+        }, 5000)
+
+        recorder.addEventListener('stop', async function(){
+            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            const audioFile = new File([audioBlob], 'audio.wav', {type: 'audio/wav'})
+            console.log(audioFile)
+            try {
+                const transciption = await speechToText(audioFile)
+                return transciption
+            } catch (e) {
+                console.error('error transcribing directly from recording')
             }
-        };
-        mediaRecorder.onstop = async () => {
-            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' })
-            const filename = 'audio.wav'
-            const file = new File([audioBlob], filename, {type: 'audio/wav'})
-            console.log(file)
-            return file
-        };
-        mediaRecorder.start();
-        setTimeout(function () {
-            mediaRecorder.stop();
-            // stream.getTracks().forEach(track => track.stop());
-        }, 2000);
-        return await new Promise((resolve, reject) => {
-            mediaRecorder.onstop = resolve;
-        })
+        });
+        recorder.start();
     } catch (e) {
         console.error('Error accessing microphone or recording', e);
     }
@@ -111,8 +109,8 @@ async function recordMessage() {
 async function speechToText(speech){
     try {
         const response = await openai.audio.transcriptions.create({
-            model: 'whisper-1',
             file: speech,
+            model: 'whisper-1',
             response_format: 'text'
         })
         return response.text

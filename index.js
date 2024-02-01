@@ -69,12 +69,12 @@ async function speakTranslation(text){
 }
 
 recordButton.addEventListener('click', async function(){
-    const transcription = await recordMessage()
-    // const transcription = await speechToText(recording)
+    const transcription = await transcribeAudio()
     textToTranslateInput.innerText = transcription
+    updateCharCount(transcription);
 })
 
-async function recordMessage() {
+async function transcribeAudio() {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         const recorder = new MediaRecorder(stream);
@@ -83,23 +83,31 @@ async function recordMessage() {
         recorder.addEventListener('dataavailable', event => {
             audioChunks.push(event.data);
         });
-
-        setTimeout(() => {
-            recorder.stop()
-        }, 5000)
-
-        recorder.addEventListener('stop', async function(){
-            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-            const audioFile = new File([audioBlob], 'audio.wav', {type: 'audio/wav'})
-            console.log(audioFile)
-            try {
-                const transciption = await speechToText(audioFile)
-                return transciption
-            } catch (e) {
-                console.error('error transcribing directly from recording')
-            }
-        });
         recorder.start();
+
+        const stopRecording = new Promise(resolve => {
+            setTimeout(() => {
+                recorder.stop()
+                resolve()
+            }, 5000)
+        })
+
+        await stopRecording
+        stream.getTracks().forEach(track => track.stop());
+
+        return new Promise(async (resolve, reject) => {
+            recorder.addEventListener('stop', async function(){
+                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                const audioFile = new File([audioBlob], 'audio.wav', {type: 'audio/wav'})
+                try {
+                    const transciption = await speechToText(audioFile)
+                    resolve(transciption)
+                } catch (e) {
+                    console.error('error transcribing directly from recording')
+                    reject(e)
+                }
+            });
+        })
     } catch (e) {
         console.error('Error accessing microphone or recording', e);
     }
@@ -113,7 +121,7 @@ async function speechToText(speech){
             model: 'whisper-1',
             response_format: 'text'
         })
-        return response.text
+        return response
     } catch(e){
         console.error('error transcribing the user recording', e)
     }
@@ -132,12 +140,18 @@ async function renderTranslation(output){
 }
 
 
-function updateCharCount(){
-    const charCount = document.getElementById('char-count')
-    textToTranslateInput.addEventListener('input', function(){
-        const currentLength = textToTranslateInput.value.length
-        charCount.textContent = `${currentLength}/100`
-    })
+function updateCharCount(transcription){
+    if(transcription){
+        const charCount = document.getElementById('char-count');
+        const currentLength = transcription.length;
+        charCount.textContent = `${currentLength}/100`;
+    } else {
+        const charCount = document.getElementById('char-count')
+        textToTranslateInput.addEventListener('input', function(){
+            const currentLength = textToTranslateInput.value.length
+            charCount.textContent = `${currentLength}/100`
+        })
+    }
 }
 
 updateCharCount();

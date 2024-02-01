@@ -1,6 +1,6 @@
 body {
     font-family: 'Poppins', sans-serif;
-    max-width: 450px;
+    max-width: 390px;
     margin: auto;
 }
 
@@ -9,30 +9,31 @@ body {
     background-image: url('./assets/worldmap.png');
     background-size: cover;
     background-position: center;
-    height: 213px;
+    height: 150px;
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
+    border-radius: 15px;
 }
 
 #banner h1 {
     font-family: 'Big Shoulders Display', sans-serif;
     font-weight: 800;
-    font-size: 43px;
+    font-size: 48px;
     color: #32CD32;
     margin: 0;
 }
 
 #banner h2 {
     font-weight: 600;
-    font-size: 12px;
+    font-size: 16px;
     color: #ffffff;
     margin: 3px 0;
 }
 
 #banner img {
-    height: 85px;
-    width: 95px;
+    height: 90px;
+    width: 100px;
     margin-right: 15px;
 }
 
@@ -41,19 +42,18 @@ main {
     border: 4px solid #252F42;
     border-radius: 15px;
     width: 100%;
-    height: 505px;
+    height: 100%;
+    box-sizing: border-box;
 }
 
 .header {
     font-weight: 700;
     font-size: 20px;
     color: #035A9D;
-    margin-left: 40px;
-    margin-top: 0;
 }
 
 #translation-input, #translation {
-    height: 118px;
+    height: 150px;
     width: 90%;
     font-weight: 600;
     font-size: 20px;
@@ -61,19 +61,23 @@ main {
     border: none;
     background-color: #EFF0F4;
     color: #000;
-    padding-left: 10px;
-    padding-top: 10px;
+    padding: 10px;
     text-align: left;
     margin-left: auto;
     margin-right: auto; 
     box-sizing: border-box;
 }
 
+#select-language{
+    display: flex;
+    margin-top: 20px;
+}
+
 .large-button {
     display: block;
     width: 90%;
     height: 50px;
-    margin: 20px auto 50px auto;
+    margin: 0 auto 25px auto;
     background-color: #035A9D;
     color: white;
     font-size: 24px;
@@ -81,13 +85,80 @@ main {
     border-radius: 6px;
 }
 
-.large-button:hover {
+.large-button:disabled{
+    cursor: not-allowed;
+    background-color: gray;
+    border: none;
+}
+
+#play-translation-btn:not([disabled]):hover {
+    cursor: pointer;
+    transform: scale(1.1)
+}
+
+.large-button:not([disabled]):hover{
     cursor: pointer;
 }
 
-.large-button:disabled {
+#play-translation-btn:disabled{
     cursor: not-allowed;
+    padding-left: 2px;
     background-color: gray;
+    border: none;
+}
+
+#record-button {
+    height: 30px;
+    width: 60px;
+    background-color: white;
+    border: #252F42 2px solid;
+    border-radius: 10px;
+    font-size: 14px;
+    text-align: center;
+    padding-right: 2px;
+    position: absolute;
+    bottom: 8%;
+    left: 8%;
+    transition: transform 0.3s, background-color 0.3s, color 0.3s
+}
+
+#time-remaining{
+    position: absolute;
+    bottom: 10%;
+    left: 25%;
+}
+
+#language{
+    width: 25%;
+}
+
+#record-button:hover {
+    transform: scale(1.1);
+    /* color: #fff; */
+    cursor: pointer;
+}
+
+#record-button:disabled{
+    background-color: black;
+    color: white;
+}
+
+#translation-div{
+    position: relative;
+}
+
+#play-translation-btn{
+    position: absolute;
+    bottom: 8%;
+    left: 8%;
+    height: 30px;
+    width: 32px;
+    background-color: white;
+    border: #252F42 2px solid;
+    border-radius: 8px;
+    font-size: 18px;
+    padding-left: 3px;
+    transition: transform 0.3s, background-color 0.3s, color 0.3s
 }
 
 .hidden {
@@ -110,6 +181,15 @@ main {
 
 #char-count {
     position: absolute;
-    bottom: 8px;
-    right: 5%;
+    bottom: 8%;
+    right: 8%;
+}
+
+footer{
+    font-size: 12px;
+    text-align: center;
+    width: 70%;
+    margin: auto;
+    font-style: italic;
+    font-weight: 100;
 }

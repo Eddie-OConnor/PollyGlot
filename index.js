@@ -52,6 +52,7 @@ async function translate(text, language){
 
 
 async function speakTranslation(text){
+    const translationAudio = document.getElementById('translation-audio')
     const playTranslationBtn = document.getElementById('play-translation-btn')
     try {
         const response = await openai.audio.speech.create({
@@ -61,8 +62,12 @@ async function speakTranslation(text){
         })
         const arrayBuffer = await response.arrayBuffer()
         const blob = new Blob ([arrayBuffer], {type: 'audio/mp3'})
-        playTranslationBtn.src = URL.createObjectURL(blob)
-        playTranslationBtn.load()
+        translationAudio.src = URL.createObjectURL(blob)
+        translationAudio.load()
+        playTranslationBtn.disabled = false
+        playTranslationBtn.addEventListener("click", () => {
+            translationAudio.play()
+          })
     } catch (e) {
         console.error('error converting translated text into speech', e)
     }
@@ -71,29 +76,20 @@ async function speakTranslation(text){
 recordButton.addEventListener('click', async function(){
     const transcription = await transcribeAudio()
     textToTranslateInput.innerText = transcription
-    updateCharCount(transcription);
+    updateCharCount(transcription)
 })
 
 async function transcribeAudio() {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const recorder = new MediaRecorder(stream);
-        let audioChunks = [];
+        const recorder = new MediaRecorder(stream)
+        let audioChunks = []
 
         recorder.addEventListener('dataavailable', event => {
             audioChunks.push(event.data);
         });
         recorder.start();
-
-        const stopRecording = new Promise(resolve => {
-            setTimeout(() => {
-                recorder.stop()
-                resolve()
-            }, 5000)
-        })
-
-        await stopRecording
-        stream.getTracks().forEach(track => track.stop());
+        countdownTimer(recorder)
 
         return new Promise(async (resolve, reject) => {
             recorder.addEventListener('stop', async function(){
@@ -106,10 +102,10 @@ async function transcribeAudio() {
                     console.error('error transcribing directly from recording')
                     reject(e)
                 }
-            });
+            })
         })
     } catch (e) {
-        console.error('Error accessing microphone or recording', e);
+        console.error('Error accessing microphone or recording', e)
     }
 }
 
@@ -142,9 +138,9 @@ async function renderTranslation(output){
 
 function updateCharCount(transcription){
     if(transcription){
-        const charCount = document.getElementById('char-count');
-        const currentLength = transcription.length;
-        charCount.textContent = `${currentLength}/100`;
+        const charCount = document.getElementById('char-count')
+        const currentLength = transcription.length
+        charCount.textContent = `${currentLength}/100`
     } else {
         const charCount = document.getElementById('char-count')
         textToTranslateInput.addEventListener('input', function(){
@@ -154,7 +150,27 @@ function updateCharCount(transcription){
     }
 }
 
-updateCharCount();
+updateCharCount()
+
+
+function countdownTimer(recorder) {
+    let seconds = 9
+    const timeRemainingElement = document.getElementById('time-remaining')
+
+    recordButton.disabled = true
+
+    const countdownInterval = setInterval(function () {
+        timeRemainingElement.textContent = `:0${seconds}`
+        seconds--
+
+        if (seconds < -1) {
+            clearInterval(countdownInterval)
+            recordButton.disabled = false
+            timeRemainingElement.textContent = ''
+            recorder.stop()
+        }
+    }, 1000)
+}
 
 
 function enableTranslateBtn() {
@@ -163,8 +179,8 @@ function enableTranslateBtn() {
     translateBtn.disabled = !(isTextEntered && isLanguageSelected)
 }
 
-selectLanguage.addEventListener('input', () => enableTranslateBtn());
-textToTranslateInput.addEventListener('input', () => enableTranslateBtn());
+selectLanguage.addEventListener('input', () => enableTranslateBtn())
+textToTranslateInput.addEventListener('input', () => enableTranslateBtn())
 
 
 startOverBtn.addEventListener('click', () => {

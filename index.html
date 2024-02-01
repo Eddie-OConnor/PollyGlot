@@ -22,20 +22,20 @@
 
     <main>
         <div>
-            <h3 id="text-input-header" class="header">Text to Translate 👇</h3>
-            <button type="button" id="record-button">Listen for text to translate</button>
-            <audio id="recorded-audio" controls></audio>
+            <h3 id="text-input-header" class="header center">Text to Translate 👇</h3>
             <div id="text-input-container" class="center">
                 <textarea id="translation-input" type="text" placeholder="How are you?" maxlength="100"></textarea>
+                <button type="button" id="record-button">Rec🔴</button>
+                <span id="time-remaining">:10</span>
                 <span id="char-count">0/100</span>
             </div>
         </div>
 
         <div id="select-language">
-            <div>
-                <label for="language" class="header">Desired Translation 👉</label>
+            <div class="center">
+                <label for="language" class="header center">Select Language 👉</label>
                 <select id="language" name="language">
-                    <option value="default">Select Language</option>
+                    <option value="default"> - </option>
                     <option value="English">English</option>
                     <option value="Arabic">Arabic</option>
                     <option value="French">French</option>
@@ -48,15 +48,16 @@
                     <option value="Portuguese">Portuguese</option>
                     <option value="Russian">Russian</option>
                     <option value="Spanish">Spanish</option>
-                    <option value="Other">Other</option>
+                    <!-- <option value="Other">Other</option> -->
                 </select>
             </div>
         </div>
 
-        <div class="center">
+        <div id="translation-div" class="center">
             <!-- translated text appears here -->
             <p id="translation"></p>
-            <audio id="play-translation-btn" controls></audio>
+            <audio id="translation-audio"></audio>
+            <button id="play-translation-btn" type="button" disabled>🔊</button>
         </div>
 
         <div>
@@ -66,4 +67,7 @@
     </main>
     <script src="index.js" type="module"></script>
     </body>
+    <footer>
+        <p>Please note that the voice you are hearing is AI-generated and not a human voice.</p>
+    </footer>
 </html>

@@ -81,7 +81,7 @@ recordButton.addEventListener('click', async function(){
 
 async function transcribeAudio() {
     try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: {codec: 'audio/webm;codecs=opus'} });
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: {codec: 'audio/mp3;codecs=opus'} });
         const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' })
         let audioChunks = []
 
@@ -93,8 +93,8 @@ async function transcribeAudio() {
 
         return new Promise(async (resolve, reject) => {
             recorder.addEventListener('stop', async function(){
-                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                const audioFile = new File([audioBlob], 'audio.webm', {type: 'audio/webm'})
+                const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
+                const audioFile = new File([audioBlob], 'audio.mp3', {type: 'audio/mp3'})
                 try {
                     const transciption = await speechToText(audioFile)
                     resolve(transciption)

@@ -93,8 +93,8 @@ async function transcribeAudio() {
 
         return new Promise(async (resolve, reject) => {
             recorder.addEventListener('stop', async function(){
-                const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
-                const audioFile = new File([audioBlob], 'audio.mp3', {type: 'audio/mp3'})
+                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                const audioFile = new File([audioBlob], 'audio.wav', {type: 'audio/wav'})
                 try {
                     const transciption = await speechToText(audioFile)
                     resolve(transciption)

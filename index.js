@@ -81,7 +81,7 @@ recordButton.addEventListener('click', async function(){
 
 async function transcribeAudio() {
     try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         const recorder = new MediaRecorder(stream)
         let audioChunks = []
 
@@ -93,8 +93,8 @@ async function transcribeAudio() {
 
         return new Promise(async (resolve, reject) => {
             recorder.addEventListener('stop', async function(){
-                const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
-                const audioFile = new File([audioBlob], 'audio.mp3', {type: 'audio/mp3'})
+                const audioBlob = new Blob(audioChunks, { type: 'audio/mp4' });
+                const audioFile = new File([audioBlob], 'audio.mp4', {type: 'audio/mp4'})
                 try {
                     const transciption = await speechToText(audioFile)
                     resolve(transciption)

@@ -7,11 +7,14 @@ const recordButton = document.getElementById('record-button')
 const selectLanguage = document.getElementById('language')
 const translateBtn = document.getElementById('translate-btn')
 const startOverBtn = document.getElementById("start-over-btn")
+const loading = document.getElementById('load-graphic')
 
 async function main(text, language){
+    loading.classList.remove('hidden')
     const translation = await translate(text, language)
     await speakTranslation(translation)
     await renderTranslation(translation)
+    loading.classList.add('hidden')
 }
 
 
@@ -89,10 +92,12 @@ async function transcribeAudio() {
             audioChunks.push(event.data);
         });
         recorder.start();
+        recordButton.classList.add('recording')
         countdownTimer(recorder)
 
         return new Promise(async (resolve, reject) => {
             recorder.addEventListener('stop', async function(){
+                loading.classList.remove('hidden')
                 const audioBlob = new Blob(audioChunks, { type: 'audio/mp4' });
                 const audioFile = new File([audioBlob], 'audio.mp4', {type: 'audio/mp4'})
                 try {
@@ -102,6 +107,7 @@ async function transcribeAudio() {
                     console.error('error transcribing directly from recording')
                     reject(e)
                 }
+                loading.classList.add('hidden')
             })
         })
     } catch (e) {
@@ -154,18 +160,18 @@ updateCharCount()
 
 
 function countdownTimer(recorder) {
-    let seconds = 9
+    let seconds = 6
     const timeRemainingElement = document.getElementById('time-remaining')
 
-    recordButton.disabled = true
-
+    // recordButton.disabled = true
+    
     const countdownInterval = setInterval(function () {
         timeRemainingElement.textContent = `:0${seconds}`
         seconds--
 
         if (seconds < -1) {
             clearInterval(countdownInterval)
-            recordButton.disabled = false
+            recordButton.classList.remove('recording')
             timeRemainingElement.textContent = ''
             recorder.stop()
         }

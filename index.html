@@ -25,16 +25,17 @@
             <h3 id="text-input-header" class="header center">Text to Translate 👇</h3>
             <div id="text-input-container" class="center">
                 <textarea id="translation-input" type="text" placeholder="How are you?" maxlength="100"></textarea>
-                <button type="button" id="record-button">Rec🔴</button>
-                <span id="time-remaining">:10</span>
+                <button type="button" id="record-button">.</button>
+                <span id="time-remaining">:07</span>
                 <span id="char-count">0/100</span>
+                <div id="load-graphic" class="hidden"></div>
             </div>
         </div>
 
         <div id="select-language">
             <div class="center">
                 <label for="language" class="header center">Select Language 👉</label>
-                <select id="language" name="language">
+                <select id="language" name="language"> 
                     <option value="default"> - </option>
                     <option value="English">English</option>
                     <option value="Arabic">Arabic</option>
@@ -57,7 +58,7 @@
             <!-- translated text appears here -->
             <p id="translation"></p>
             <audio id="translation-audio"></audio>
-            <button id="play-translation-btn" type="button" disabled>🔊</button>
+            <button id="play-translation-btn" type="button" disabled>.</button>
         </div>
 
         <div>

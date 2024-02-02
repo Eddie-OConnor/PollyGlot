@@ -82,7 +82,7 @@ recordButton.addEventListener('click', async function(){
 async function transcribeAudio() {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' })
+        const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' })
         let audioChunks = []
 
         recorder.addEventListener('dataavailable', event => {

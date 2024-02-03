@@ -1,35 +1,46 @@
-// config.js
 
-import OpenAI from 'openai';
 
-async function fetchKeys(){
+async function transcribeAudio() {
     try {
-        const response = await fetch('/.netlify/functions/fetchApi')
-        if(response.ok){
-            const data = await response.json()
-            const {openaiApiKey} = data
-            return {
-                openaiApiKey: openaiApiKey,
-            }
-        } else {
-            console.error('error fetching keys', response.statusText)
-        }
-    } catch (e){
-        console.error('error fetching keys', e)
-  }
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false, mimeType: 'audio/mp4' });
+        const recorder = new MediaRecorder(stream)
+        let audioChunks = []
+
+        recorder.addEventListener('dataavailable', event => {
+            audioChunks.push(event.data);
+        });
+        recorder.start();
+        recordButton.classList.add('recording')
+        countdownTimer(recorder)
+
+        return new Promise(async (resolve, reject) => {
+            recorder.addEventListener('stop', async function(){
+                const audioBlob = new Blob(audioChunks, { type: 'audio/mp4' });
+                const audioFile = new File([audioBlob], 'audio.mp4', {type: 'audio/mp4'})
+                try {
+                    const transciption = await speechToText(audioFile)
+                    resolve(transciption)
+                } catch (e) {
+                    console.error('error transcribing directly from recording')
+                    reject(e)
+                }
+            })
+        })
+    } catch (e) {
+        console.error('Error accessing microphone or recording', e)
+    }
 }
 
-export async function initializeApiInstances(){
+
+async function speechToText(speech){
     try {
-        const apiKeys = await fetchKeys()
-        /* OpenAI config */
-        if (!apiKeys.openaiApiKey) throw new Error("OpenAI API key is missing or invalid.");
-        const openai = new OpenAI({
-            apiKey: apiKeys.openaiApiKey,
-            dangerouslyAllowBrowser: true
-        });
-        return {openai}
-    } catch (e){
-        console.error('error initializing instances', e)
+        const response = await openai.audio.transcriptions.create({
+            file: speech,
+            model: 'whisper-1',
+            response_format: 'text'
+        })
+        return response
+    } catch(e){
+        console.error('error transcribing the user recording', e)
     }
 }

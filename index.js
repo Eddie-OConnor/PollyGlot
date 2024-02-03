@@ -1,7 +1,4 @@
 //index.js
-import {initializeApiInstances} from './config.js'
-const {openai} = await initializeApiInstances()
-
 const textToTranslateInput = document.getElementById('translation-input')
 const recordButton = document.getElementById('record-button')
 const selectLanguage = document.getElementById('language')
@@ -9,70 +6,69 @@ const translateBtn = document.getElementById('translate-btn')
 const startOverBtn = document.getElementById("start-over-btn")
 const loading = document.getElementById('load-graphic')
 
-async function main(text, language){
-    loading.classList.remove('hidden')
-    const translation = await translate(text, language)
-    await speakTranslation(translation)
-    await renderTranslation(translation)
-    loading.classList.add('hidden')
-}
-
-
 translateBtn.addEventListener('click', async function(e) {
     e.preventDefault()
     const textToTranslate = textToTranslateInput.value
     const selectedLanguage = selectLanguage.value
     textToTranslateInput.disabled = true
-    main(textToTranslate, selectedLanguage)
+    let action = 'translate'
+    main(textToTranslate, selectedLanguage, action)
 })
 
+async function main(text, language, action){
+    const translation = await getTranslation(text, language, action)
+    await getSpeech(translation, action)
+    await renderTranslation(translation)
+}
 
-async function translate(text, language){
-    const messages = [
-        {
-            role: 'system',
-            content: `You translate ${text} from it's language into ${language}.`
-        },
-        {
-            role: 'user',
-            content: `${text}
-            `
-        }
-    ]
+async function getTranslation(text, language, action){
     try {
-        const response = await openai.chat.completions.create({
-            model: 'gpt-4',
-            messages: messages,
-            temperature: 1,
-            max_tokens: 200
+        const response = await fetch('/.netlify/functions/fetchApi', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                text, language, action
+            })
         })
-        const translationResponse = response.choices[0].message.content
-        return translationResponse
-    } catch (e) {
-        console.error('Unable to access OpenAI, please refresh and try again', e)
+        if(response.ok){
+            const data = await response.json()
+            const translation = data.response
+            return translation
+        }
+    } catch (e){
+        console.error('error fetching translation', e)
     }
-} 
+}
 
 
-async function speakTranslation(text){
+async function getSpeech(text, action) {
     const translationAudio = document.getElementById('translation-audio')
     const playTranslationBtn = document.getElementById('play-translation-btn')
+    action = 'speak'
     try {
-        const response = await openai.audio.speech.create({
-            model: 'tts-1-hd',
-            voice: 'echo',
-            input: text
+        const response = await fetch('/.netlify/functions/fetchApi', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                text, action
+            })
         })
-        const arrayBuffer = await response.arrayBuffer()
-        const blob = new Blob ([arrayBuffer], {type: 'audio/mp3'})
-        translationAudio.src = URL.createObjectURL(blob)
-        translationAudio.load()
-        playTranslationBtn.disabled = false
-        playTranslationBtn.addEventListener("click", () => {
-            translationAudio.play()
-          })
+        if (response.ok) {
+            const arrayBuffer = await response.arrayBuffer()
+            const blob = new Blob([arrayBuffer], { type: 'audio/mp3' })
+            translationAudio.src = URL.createObjectURL(blob)
+            translationAudio.load()
+            playTranslationBtn.disabled = false
+            playTranslationBtn.addEventListener('click', () => {
+                translationAudio.play()
+            })
+        }
     } catch (e) {
-        console.error('error converting translated text into speech', e)
+        console.error('error fetching translation', e)
     }
 }
 
@@ -82,52 +78,6 @@ recordButton.addEventListener('click', async function(){
     updateCharCount(transcription)
 })
 
-async function transcribeAudio() {
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false, mimeType: 'audio/mp4' });
-        const recorder = new MediaRecorder(stream)
-        let audioChunks = []
-
-        recorder.addEventListener('dataavailable', event => {
-            audioChunks.push(event.data);
-        });
-        recorder.start();
-        recordButton.classList.add('recording')
-        countdownTimer(recorder)
-
-        return new Promise(async (resolve, reject) => {
-            recorder.addEventListener('stop', async function(){
-                loading.classList.remove('hidden')
-                const audioBlob = new Blob(audioChunks, { type: 'audio/mp4' });
-                const audioFile = new File([audioBlob], 'audio.mp4', {type: 'audio/mp4'})
-                try {
-                    const transciption = await speechToText(audioFile)
-                    resolve(transciption)
-                } catch (e) {
-                    console.error('error transcribing directly from recording')
-                    reject(e)
-                }
-                loading.classList.add('hidden')
-            })
-        })
-    } catch (e) {
-        console.error('Error accessing microphone or recording', e)
-    }
-}
-
-
-async function speechToText(speech){
-    try {
-        const response = await openai.audio.transcriptions.create({
-            file: speech,
-            model: 'whisper-1',
-            response_format: 'text'
-        })
-        return response
-    } catch(e){
-        console.error('error transcribing the user recording', e)
-    }
-}
 
 /* UX Functions */
 
@@ -156,6 +106,20 @@ function updateCharCount(transcription){
     }
 }
 
+function enableTranslateBtn() {
+    const isTextEntered = textToTranslateInput.value.trim().length > 0
+    const isLanguageSelected = selectLanguage.value !== 'default'
+    translateBtn.disabled = !(isTextEntered && isLanguageSelected)
+}
+
+selectLanguage.addEventListener('input', () => enableTranslateBtn())
+textToTranslateInput.addEventListener('input', () => enableTranslateBtn())
+
+
+startOverBtn.addEventListener('click', () => {
+    location.reload()
+})
+
 updateCharCount()
 
 
@@ -178,17 +142,3 @@ function countdownTimer(recorder) {
     }, 1000)
 }
 
-
-function enableTranslateBtn() {
-    const isTextEntered = textToTranslateInput.value.trim().length > 0
-    const isLanguageSelected = selectLanguage.value !== 'default'
-    translateBtn.disabled = !(isTextEntered && isLanguageSelected)
-}
-
-selectLanguage.addEventListener('input', () => enableTranslateBtn())
-textToTranslateInput.addEventListener('input', () => enableTranslateBtn())
-
-
-startOverBtn.addEventListener('click', () => {
-    location.reload()
-})

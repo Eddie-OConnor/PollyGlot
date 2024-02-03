@@ -1,5 +1,5 @@
-- recording stop feature
+- reconfigure so api keys not exposed
+- recording stop feature - break out functions -> startRecording, stopRecording, createAudio, speechToText
 - fix record button on mobile browser
 - continue conversation button to hold settings but allow new inputs
         and/or flip button to let person B respond in their language and person A hears translation
-- look into adding react mic button instead of js

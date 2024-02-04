@@ -21,7 +21,7 @@ const handler = async (event) => {
             const response = await textToSpeech(text)
             return {
                 statusCode: 200,
-                body: JSON.stringify({response})
+                body: JSON.stringify({response}),
             }
         } else if (action === 'transcribe'){
             return null
@@ -51,6 +51,7 @@ async function translate(text, language){
             temperature: 1,
             max_tokens: 200
         })
+        console.log(response)
         const translationResponse = response.choices[0].message.content
         return translationResponse
     } catch (e) {
@@ -60,12 +61,14 @@ async function translate(text, language){
 
 
 async function textToSpeech(text){
+    console.log(text)
     try {
         const response = await openai.audio.speech.create({
             model: 'tts-1-hd',
             voice: 'echo',
             input: text
         })
+        console.log(response)
         return response
     } catch (e) {
         console.error('error converting translated text into speech', e)

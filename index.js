@@ -141,4 +141,3 @@ function countdownTimer(recorder) {
         }
     }, 1000)
 }
-

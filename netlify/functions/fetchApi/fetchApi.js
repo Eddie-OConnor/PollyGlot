@@ -18,10 +18,13 @@ const handler = async (event) => {
                 body: JSON.stringify({response}),
             }
         } else if (action === 'speak'){
-            const response = await textToSpeech(text)
+            const blob = await textToSpeech(text)
             return {
                 statusCode: 200,
-                body: JSON.stringify({response}),
+                headers: {
+                    'Content-Type': 'audio/mp3'
+                },
+                body: JSON.stringify({blob}),
             }
         } else if (action === 'transcribe'){
             return null
@@ -61,15 +64,16 @@ async function translate(text, language){
 
 
 async function textToSpeech(text){
-    console.log(text)
     try {
         const response = await openai.audio.speech.create({
             model: 'tts-1-hd',
             voice: 'echo',
             input: text
         })
-        console.log(response)
-        return response
+        const arrayBuffer = await response.arrayBuffer()
+        const blob = new Blob([arrayBuffer], {type: 'audio/mp3'})
+        console.log(blob)
+        return blob
     } catch (e) {
         console.error('error converting translated text into speech', e)
     }

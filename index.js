@@ -51,21 +51,23 @@ async function getSpeech(text, action) {
         const response = await fetch('/.netlify/functions/fetchApi', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'audio/mp3'
             },
             body: JSON.stringify({
                 text, action
             })
         })
         if (response.ok) {
-            const arrayBuffer = await response.arrayBuffer()
-            const blob = new Blob([arrayBuffer], { type: 'audio/mp3' })
-            translationAudio.src = URL.createObjectURL(blob)
-            translationAudio.load()
-            playTranslationBtn.disabled = false
-            playTranslationBtn.addEventListener('click', () => {
-                translationAudio.play()
-            })
+            const data = await response.json()
+            console.log(data)
+            // const blob = data.blob
+            // translationAudio.src = URL.createObjectURL(blob)
+            // translationAudio.load()
+            // playTranslationBtn.disabled = false
+            // playTranslationBtn.addEventListener('click', () => {
+            //     translationAudio.play()
+            // })
         }
     } catch (e) {
         console.error('error fetching translation', e)

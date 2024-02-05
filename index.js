@@ -1,10 +1,9 @@
 //index.js
 const textToTranslateInput = document.getElementById('translation-input')
-const recordButton = document.getElementById('record-button')
 const selectLanguage = document.getElementById('language')
 const translateBtn = document.getElementById('translate-btn')
 const startOverBtn = document.getElementById("start-over-btn")
-const loading = document.getElementById('load-graphic')
+// const loading = document.getElementById('load-graphic')
 
 translateBtn.addEventListener('click', async function(e) {
     e.preventDefault()
@@ -79,15 +78,89 @@ async function getSpeech(text, action) {
     }
 }
 
+
+const recordButton = document.getElementById('record-button')
+const timeRemainingElement = document.getElementById('time-remaining');
+const recordingTimeLimit = '5' /* adjust to allow longer recordings */
+
+let recorder;
+let audioChunks = [];
+let recording = false
+let countdownInterval;
+
 recordButton.addEventListener('click', async function(){
-    const transcription = await transcribeAudio()
-    textToTranslateInput.innerText = transcription
-    updateCharCount(transcription)
+    if(!recording){
+        await startRecording();
+    } else {
+        await stopRecording()
+    }
+
 })
 
 
-/* UX Functions */
+async function startRecording() {
+    recording = true
+    timeRemainingElement.textContent = `:0${recordingTimeLimit}`
+    timeRemainingElement.classList.remove('hidden')
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false, mimeType: 'audio/mp4' });
+        recorder = new MediaRecorder(stream);
+        audioChunks = [];
 
+        recorder.addEventListener('dataavailable', event => {
+            audioChunks.push(event.data);
+        });
+        recorder.start();
+        recordButton.classList.add('recording');
+        countdownTimer();
+
+    } catch (e) {
+        console.error('Error accessing microphone or recording', e);
+    }
+}
+
+
+async function stopRecording() {
+    recording = false
+    clearInterval(countdownInterval);
+    recordButton.classList.remove('recording');
+    timeRemainingElement.classList.add('hidden')
+    recorder.stop();
+
+    return new Promise(async (resolve, reject) => {
+        recorder.addEventListener('stop', async function(){
+            const audioBlob = new Blob(audioChunks, { type: 'audio/mp4' });
+            const audioFile = new File([audioBlob], 'audio.mp4', {type: 'audio/mp4'});
+
+            try {
+                const transcription = await speechToText(audioFile);
+                textToTranslateInput.innerText = transcription;
+                updateCharCount(transcription);
+                resolve(transcription);
+            } catch (e) {
+                console.error('Error transcribing directly from recording', e);
+                reject(e);
+            }
+        });
+    });
+}
+
+
+async function speechToText(speech){
+    try {
+        const response = await openai.audio.transcriptions.create({
+            file: speech,
+            model: 'whisper-1',
+            response_format: 'text'
+        })
+        return response
+    } catch(e){
+        console.error('error transcribing the user recording', e)
+    }
+}
+
+
+/* UX Functions */
 
 async function renderTranslation(output){
         const textToTranslateHeader = document.getElementById("text-input-header")
@@ -113,6 +186,28 @@ function updateCharCount(transcription){
     }
 }
 
+updateCharCount()
+
+
+function countdownTimer() {
+    let seconds = 4;
+
+    countdownInterval = setInterval(function () {
+        timeRemainingElement.textContent = `:0${seconds}`;
+        seconds--;
+
+        if (seconds === -1) {
+            stopRecording().then((transcription) => {
+                textToTranslateInput.innerText = transcription;
+                updateCharCount(transcription);
+            }).catch((error) => {
+                console.error('Error during recording or transcription', error);
+            });
+        }
+    }, 1000);
+}
+
+
 function enableTranslateBtn() {
     const isTextEntered = textToTranslateInput.value.trim().length > 0
     const isLanguageSelected = selectLanguage.value !== 'default'
@@ -122,29 +217,6 @@ function enableTranslateBtn() {
 selectLanguage.addEventListener('input', () => enableTranslateBtn())
 textToTranslateInput.addEventListener('input', () => enableTranslateBtn())
 
-
 startOverBtn.addEventListener('click', () => {
     location.reload()
 })
-
-updateCharCount()
-
-
-function countdownTimer(recorder) {
-    let seconds = 6
-    const timeRemainingElement = document.getElementById('time-remaining')
-
-    // recordButton.disabled = true
-    
-    const countdownInterval = setInterval(function () {
-        timeRemainingElement.textContent = `:0${seconds}`
-        seconds--
-
-        if (seconds < -1) {
-            clearInterval(countdownInterval)
-            recordButton.classList.remove('recording')
-            timeRemainingElement.textContent = ''
-            recorder.stop()
-        }
-    }, 1000)
-}

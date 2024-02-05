@@ -18,13 +18,10 @@ const handler = async (event) => {
                 body: JSON.stringify({response}),
             }
         } else if (action === 'speak'){
-            const blob = await textToSpeech(text)
+            const base64Encoded = await textToSpeech(text)
             return {
                 statusCode: 200,
-                headers: {
-                    'Content-Type': 'audio/mp3'
-                },
-                body: JSON.stringify({blob}),
+                body: JSON.stringify({content: base64Encoded}),
             }
         } else if (action === 'transcribe'){
             return null
@@ -71,9 +68,8 @@ async function textToSpeech(text){
             input: text
         })
         const arrayBuffer = await response.arrayBuffer()
-        const blob = new Blob([arrayBuffer], {type: 'audio/mp3'})
-        console.log(blob)
-        return blob
+        const base64Encoded = Buffer.from(arrayBuffer, 'base64').toString('base64')
+        return base64Encoded
     } catch (e) {
         console.error('error converting translated text into speech', e)
     }

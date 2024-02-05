@@ -52,7 +52,6 @@ async function getSpeech(text, action) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'audio/mp3'
             },
             body: JSON.stringify({
                 text, action
@@ -60,14 +59,20 @@ async function getSpeech(text, action) {
         })
         if (response.ok) {
             const data = await response.json()
-            console.log(data)
-            // const blob = data.blob
-            // translationAudio.src = URL.createObjectURL(blob)
-            // translationAudio.load()
-            // playTranslationBtn.disabled = false
-            // playTranslationBtn.addEventListener('click', () => {
-            //     translationAudio.play()
-            // })
+            const encoded = data.content
+            const byteCharacters = atob(encoded)
+            const byteNumbers = new Array(byteCharacters.length)
+            for (let i = 0; i < byteCharacters.length; i++){
+                byteNumbers[i] = byteCharacters.charCodeAt(i)
+            }
+            const byteArray = new Uint8Array(byteNumbers)
+            const blob = new Blob([byteArray], {type: 'audio/mp3'})
+            translationAudio.src = URL.createObjectURL(blob)
+            translationAudio.load()
+            playTranslationBtn.disabled = false
+            playTranslationBtn.addEventListener('click', () => {
+                translationAudio.play()
+            })
         }
     } catch (e) {
         console.error('error fetching translation', e)

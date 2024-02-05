@@ -3,6 +3,7 @@ const textToTranslateInput = document.getElementById('translation-input')
 const selectLanguage = document.getElementById('language')
 const translateBtn = document.getElementById('translate-btn')
 const startOverBtn = document.getElementById("start-over-btn")
+let action
 // const loading = document.getElementById('load-graphic')
 
 translateBtn.addEventListener('click', async function(e) {
@@ -10,7 +11,7 @@ translateBtn.addEventListener('click', async function(e) {
     const textToTranslate = textToTranslateInput.value
     const selectedLanguage = selectLanguage.value
     textToTranslateInput.disabled = true
-    let action = 'translate'
+    action = 'translate'
     main(textToTranslate, selectedLanguage, action)
 })
 
@@ -74,7 +75,7 @@ async function getSpeech(text, action) {
             })
         }
     } catch (e) {
-        console.error('error fetching translation', e)
+        console.error('error fetching audio of translation', e)
     }
 }
 
@@ -83,20 +84,18 @@ const recordButton = document.getElementById('record-button')
 const timeRemainingElement = document.getElementById('time-remaining');
 const recordingTimeLimit = '5' /* adjust to allow longer recordings */
 
-let recorder;
-let audioChunks = [];
+let recorder
+let audioChunks = []
 let recording = false
-let countdownInterval;
+let countdownInterval
 
 recordButton.addEventListener('click', async function(){
     if(!recording){
-        await startRecording();
+        await startRecording()
     } else {
         await stopRecording()
     }
-
 })
-
 
 async function startRecording() {
     recording = true
@@ -108,59 +107,81 @@ async function startRecording() {
         audioChunks = [];
 
         recorder.addEventListener('dataavailable', event => {
-            audioChunks.push(event.data);
+            audioChunks.push(event.data)
         });
         recorder.start();
-        recordButton.classList.add('recording');
-        countdownTimer();
+        recordButton.classList.add('recording')
+        countdownTimer()
 
     } catch (e) {
-        console.error('Error accessing microphone or recording', e);
+        console.error('Error accessing microphone or recording', e)
     }
 }
 
 
 async function stopRecording() {
     recording = false
-    clearInterval(countdownInterval);
-    recordButton.classList.remove('recording');
+    clearInterval(countdownInterval)
+    recordButton.classList.remove('recording')
     timeRemainingElement.classList.add('hidden')
-    recorder.stop();
+    recorder.stop()
 
     return new Promise(async (resolve, reject) => {
         recorder.addEventListener('stop', async function(){
-            const audioBlob = new Blob(audioChunks, { type: 'audio/mp4' });
-            const audioFile = new File([audioBlob], 'audio.mp4', {type: 'audio/mp4'});
+            const audioBlob = new Blob(audioChunks, { type: 'audio/mp4' })
+            const base64File = await convertAudioToBase64(audioBlob)
+            action = 'transcribe'
 
             try {
-                const transcription = await speechToText(audioFile);
-                textToTranslateInput.innerText = transcription;
-                updateCharCount(transcription);
-                resolve(transcription);
+                const transcription = await getText(base64File, action)
+                textToTranslateInput.innerText = transcription
+                updateCharCount(transcription)
+                resolve(transcription)
             } catch (e) {
-                console.error('Error transcribing directly from recording', e);
+                console.error('Error transcribing directly from recording', e)
                 reject(e);
             }
         });
     });
 }
 
-
-async function speechToText(speech){
+async function getText(speech, action){
     try {
-        const response = await openai.audio.transcriptions.create({
-            file: speech,
-            model: 'whisper-1',
-            response_format: 'text'
+        const response = await fetch('/.netlify/functions/fetchApi', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                speech, action
+            })
         })
-        return response
-    } catch(e){
-        console.error('error transcribing the user recording', e)
+        if(response.ok){
+            const data = await response.json()
+            return data.response
+        }
+    } catch (e){
+        console.error('error fetching transcribed speech', e)
     }
 }
 
 
-/* UX Functions */
+/* Utility Functions */
+
+async function convertAudioToBase64(audioBlob) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onloadend = () => {
+            const base64Data = reader.result.split(',')[1]
+            resolve(base64Data)
+        }
+        reader.onerror = (error) => {
+            reject(error);
+        }
+        reader.readAsDataURL(audioBlob)
+    })
+}
+
 
 async function renderTranslation(output){
         const textToTranslateHeader = document.getElementById("text-input-header")
@@ -193,18 +214,18 @@ function countdownTimer() {
     let seconds = 4;
 
     countdownInterval = setInterval(function () {
-        timeRemainingElement.textContent = `:0${seconds}`;
-        seconds--;
+        timeRemainingElement.textContent = `:0${seconds}`
+        seconds--
 
         if (seconds === -1) {
             stopRecording().then((transcription) => {
-                textToTranslateInput.innerText = transcription;
-                updateCharCount(transcription);
+                textToTranslateInput.innerText = transcription
+                updateCharCount(transcription)
             }).catch((error) => {
-                console.error('Error during recording or transcription', error);
-            });
+                console.error('Error during recording or transcription', error)
+            })
         }
-    }, 1000);
+    }, 1000)
 }
 
 

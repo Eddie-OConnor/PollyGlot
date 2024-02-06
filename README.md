@@ -5,7 +5,7 @@ PollyGlot translates any language into on of the top 12 most commonly spoken glo
 
 ## Technologies Used
 - HTML, JS, CSS
-- OpenAI
+- OpenAI (gpt-4, whisper-1, tts-1-hd)
 - APIs
 - Base64 encoding/decoding
 - Frontend: Vite

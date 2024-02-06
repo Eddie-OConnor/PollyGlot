@@ -2,8 +2,8 @@
 const textToTranslateInput = document.getElementById('translation-input')
 const selectLanguage = document.getElementById('language')
 const translateBtn = document.getElementById('translate-btn')
-const startOverBtn = document.getElementById("start-over-btn")
-// const loading = document.getElementById('load-graphic')
+const resetBtn = document.getElementById("reset-btn")
+const loading = document.getElementById('load-graphic')
 
 translateBtn.addEventListener('click', async function(e) {
     e.preventDefault()
@@ -14,9 +14,11 @@ translateBtn.addEventListener('click', async function(e) {
 })
 
 async function main(text, language){
+    loading.classList.remove('hidden')
     const translation = await getTranslation(text, language)
     await getSpeech(translation)
     await renderTranslation(translation)
+    loading.classList.add('hidden')
 }
 
 async function getTranslation(text, language){
@@ -77,7 +79,7 @@ async function getSpeech(text) {
 }
 
 
-const recordButton = document.getElementById('record-button')
+const recordBtn = document.getElementById('record-btn')
 const timeRemainingElement = document.getElementById('time-remaining');
 const recordingTimeLimit = '5' /* adjust to allow longer recordings */
 
@@ -86,7 +88,7 @@ let audioChunks = []
 let recording = false
 let countdownInterval
 
-recordButton.addEventListener('click', async function(){
+recordBtn.addEventListener('click', async function(){
     if(!recording){
         await startRecording()
     } else {
@@ -107,7 +109,7 @@ async function startRecording() {
             audioChunks.push(event.data)
         });
         recorder.start();
-        recordButton.classList.add('recording')
+        recordBtn.classList.add('recording')
         countdownTimer()
 
     } catch (e) {
@@ -119,8 +121,9 @@ async function startRecording() {
 async function stopRecording() {
     recording = false
     clearInterval(countdownInterval)
-    recordButton.classList.remove('recording')
+    recordBtn.classList.remove('recording')
     timeRemainingElement.classList.add('hidden')
+    loading.classList.remove('hidden')
     recorder.stop()
 
     return new Promise(async (resolve, reject) => {
@@ -131,6 +134,7 @@ async function stopRecording() {
             try {
                 const transcription = await getText(base64File)
                 textToTranslateInput.innerText = transcription
+                loading.classList.add('hidden')
                 updateCharCount(transcription)
                 resolve(transcription)
             } catch (e) {
@@ -185,7 +189,7 @@ async function renderTranslation(output){
         translationFinal.innerHTML = output
         textToTranslateHeader.innerText = 'Original Text 👇'
         translateBtn.style.display = 'none'
-        startOverBtn.classList.toggle('hidden')
+        resetBtn.classList.toggle('hidden')
 }
 
 
@@ -234,6 +238,7 @@ function enableTranslateBtn() {
 selectLanguage.addEventListener('input', () => enableTranslateBtn())
 textToTranslateInput.addEventListener('input', () => enableTranslateBtn())
 
-startOverBtn.addEventListener('click', () => {
+
+resetBtn.addEventListener('click', () => {
     location.reload()
 })

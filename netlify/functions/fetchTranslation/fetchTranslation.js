@@ -1,12 +1,14 @@
-// netlify\functions\fetchTranslation\fetchTranslation.js
+// netlify\functions\fetchSpeech\fetchTranslation.js
 
-import OpenAI from 'openai';
+// import OpenAI from 'openai';
 
-/* OpenAI config */
-if (!process.env.OPENAI_API_KEY) throw new Error("OpenAI API key is missing or invalid.");
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
+// /* OpenAI config */
+// if (!process.env.OPENAI_API_KEY) throw new Error("OpenAI API key is missing or invalid.");
+// const openai = new OpenAI({
+//     apiKey: process.env.OPENAI_API_KEY,
+// });
+
+import {openai} from '../../../openai.config.js'
 
 const handler = async (event) => {
     try {
@@ -48,4 +50,4 @@ async function translate(text, language){
     }
 }
 
-module.exports = { handler }
+export { handler }

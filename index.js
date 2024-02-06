@@ -3,7 +3,6 @@ const textToTranslateInput = document.getElementById('translation-input')
 const selectLanguage = document.getElementById('language')
 const translateBtn = document.getElementById('translate-btn')
 const startOverBtn = document.getElementById("start-over-btn")
-let action
 // const loading = document.getElementById('load-graphic')
 
 translateBtn.addEventListener('click', async function(e) {
@@ -11,25 +10,24 @@ translateBtn.addEventListener('click', async function(e) {
     const textToTranslate = textToTranslateInput.value
     const selectedLanguage = selectLanguage.value
     textToTranslateInput.disabled = true
-    action = 'translate'
-    main(textToTranslate, selectedLanguage, action)
+    main(textToTranslate, selectedLanguage)
 })
 
-async function main(text, language, action){
-    const translation = await getTranslation(text, language, action)
-    await getSpeech(translation, action)
+async function main(text, language){
+    const translation = await getTranslation(text, language)
+    await getSpeech(translation)
     await renderTranslation(translation)
 }
 
-async function getTranslation(text, language, action){
+async function getTranslation(text, language){
     try {
-        const response = await fetch('/.netlify/functions/fetchApi', {
+        const response = await fetch('/.netlify/functions/fetchTranslation', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                text, language, action
+                text, language
             })
         })
         if(response.ok){
@@ -43,18 +41,17 @@ async function getTranslation(text, language, action){
 }
 
 
-async function getSpeech(text, action) {
+async function getSpeech(text) {
     const translationAudio = document.getElementById('translation-audio')
     const playTranslationBtn = document.getElementById('play-translation-btn')
-    action = 'speak'
     try {
-        const response = await fetch('/.netlify/functions/fetchApi', {
+        const response = await fetch('/.netlify/functions/fetchSpeech', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                text, action
+                text
             })
         })
         if (response.ok) {
@@ -130,10 +127,9 @@ async function stopRecording() {
         recorder.addEventListener('stop', async function(){
             const audioBlob = new Blob(audioChunks, { type: 'audio/mp4' })
             const base64File = await convertAudioToBase64(audioBlob)
-            action = 'transcribe'
 
             try {
-                const transcription = await getText(base64File, action)
+                const transcription = await getText(base64File)
                 textToTranslateInput.innerText = transcription
                 updateCharCount(transcription)
                 resolve(transcription)
@@ -145,15 +141,15 @@ async function stopRecording() {
     });
 }
 
-async function getText(speech, action){
+async function getText(speech){
     try {
-        const response = await fetch('/.netlify/functions/fetchApi', {
+        const response = await fetch('/.netlify/functions/fetchText', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                speech, action
+                speech
             })
         })
         if(response.ok){

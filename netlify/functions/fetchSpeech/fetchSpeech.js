@@ -1,13 +1,5 @@
 // netlify\functions\fetchSpeech\fetchSpeech.js
 
-// import OpenAI from 'openai';
-
-// /* OpenAI config */
-// if (!process.env.OPENAI_API_KEY) throw new Error("OpenAI API key is missing or invalid.");
-// const openai = new OpenAI({
-//     apiKey: process.env.OPENAI_API_KEY,
-// });
-
 import {openai} from '../../../openai.config.js'
 
 const handler = async (event) => {

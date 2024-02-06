@@ -1,13 +1,5 @@
 // netlify\functions\fetchText\fetchText.js
 
-// import OpenAI from 'openai';
-
-// /* OpenAI config */
-// if (!process.env.OPENAI_API_KEY) throw new Error("OpenAI API key is missing or invalid.");
-// const openai = new OpenAI({
-//     apiKey: process.env.OPENAI_API_KEY,
-// });
-
 import {openai} from '../../../openai.config.js'
 
 const handler = async (event) => {
@@ -24,7 +16,8 @@ const handler = async (event) => {
 }
 
 async function speechToText(speech){
-    const byteCharacters = atob(speech)
+    // const byteCharacters = atob(speech)
+    const byteCharacters = Buffer.from(speech, 'base64').toString('binary')
     const byteNumbers = new Array(byteCharacters.length)
     for (let i = 0; i < byteCharacters.length; i++){
         byteNumbers[i] = byteCharacters.charCodeAt(i)

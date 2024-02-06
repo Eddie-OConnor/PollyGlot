@@ -17,29 +17,14 @@ const handler = async (event) => {
 }
 
 async function speechToText(speech){
-    // const byteCharacters = atob(speech)
-    // const byteCharacters = Buffer.from(speech, 'base64').toString('binary')
-    // const byteNumbers = new Array(byteCharacters.length)
-    // for (let i = 0; i < byteCharacters.length; i++){
-    //     byteNumbers[i] = byteCharacters.charCodeAt(i)
-    // }
-    // const byteArray = new Uint8Array(byteNumbers)
-    // const blob = new Blob([byteArray], { type: 'audio/mp4' })
-    // const audioFile = new File([blob], 'audio.mp4', {type: 'audio/mp4'})
-
-    const byteCharacters = Buffer.from(speech, 'base64').toString('binary');
+const byteCharacters = Buffer.from(speech, 'base64').toString('binary');
     const byteNumbers = new Array(byteCharacters.length);
     for (let i = 0; i < byteCharacters.length; i++) {
       byteNumbers[i] = byteCharacters.charCodeAt(i);
     }
     const byteArray = new Uint8Array(byteNumbers);
-    
-    // Create a Blob using @web-std/file
     const blob = new Blob([byteArray], { type: 'audio/mp4' });
-    
-    // Create a File object (note: this doesn't create an actual audio file)
     const audioFile = new File([blob], 'audio.mp4', { type: 'audio/mp4' });
-
     try {
         const response = await openai.audio.transcriptions.create({
             file: audioFile,

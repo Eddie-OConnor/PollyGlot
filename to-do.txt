@@ -1,5 +1,2 @@
 - fix record button on mobile browser
-- update read me
 - organize directory, professional best practices 
-- continue conversation button to hold settings but allow new inputs
-        and/or flip button to let person B respond in their language and person A hears translation

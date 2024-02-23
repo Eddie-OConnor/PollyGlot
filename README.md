@@ -1,5 +1,10 @@
 # PollyGlot
 
+<p align="center">
+  <img src="screenshots/Screenshot 2024-02-23 101031.png" width="200" height="450" />
+  <img src="screenshots/Screenshot 2024-02-23 101106.png" width="200" height="450"/>
+</p>
+
 ## Project Description
 PollyGlot translates any language into on of the top 12 most commonly spoken global languages. It solves the language barrier problem when traveling or anytime you encounter an individual who does not speak the same language(s) as you.
 

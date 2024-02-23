@@ -1,7 +1,7 @@
 # PollyGlot
 
 <p align="center">
-  <img src="screenshots/Screenshot 2024-02-23 101031.png" width="225" height="450" />
+  <img src="screenshots/Screenshot 2024-02-23 101031.png" width="225" height="450" margin-right="20px"/>
   <img src="screenshots/Screenshot 2024-02-23 101106.png" width="225" height="450"/>
 </p>
 

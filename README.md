@@ -44,5 +44,5 @@ Contributions are welcome! Please follow these guidelines:
 This project is open source. [License details](LICENSE)
 
 ## Contact Information
-- LinkedIn: [Edward James O'Connor](https://www.linkedin.com/in/edwardjamesoconnor/)
-- GitHub: [Your GitHub Profile](https://github.com/Eddie-OConnor)
+- LinkedIn: [Eddie O'Connor](https://www.linkedin.com/in/edwardjamesoconnor/)
+- GitHub: [GitHub Profile](https://github.com/Eddie-OConnor)

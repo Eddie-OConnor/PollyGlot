@@ -6,7 +6,7 @@
 </p>
 
 ## Project Description
-PollyGlot translates any language into on of the top 12 most commonly spoken global languages. It solves the language barrier problem when traveling or anytime you encounter an individual who does not speak the same language(s) as you.
+PollyGlot translates any language into one of the top 12 most commonly spoken global languages. It solves the language barrier problem when traveling or anytime you encounter an individual who does not speak the same language(s) as you.
 
 ## Technologies Used
 - HTML, JS, CSS
